@@ -11,6 +11,7 @@ class PersonalDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalDetails
         fields = '__all__'
+        # exclude=['user']
 
 class EducationSerializer(serializers.ModelSerializer):
     class Meta:
