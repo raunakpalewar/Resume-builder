@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from .import views
@@ -12,9 +12,9 @@ from .import views
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Food Delivery website",
+      title="Resume Builder Apis",
       default_version='r1',
-      description="for 2 types of users (OWNER / CUSTOMER )",
+      description="For Resume Builder",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="contact@snippets.local"),
       license=openapi.License(name="BSD License"),
@@ -30,7 +30,13 @@ urlpatterns = [
     path('login/',views.Login.as_view()),
     path('logout/',views.UserLogout.as_view()),
     path('forgotPassword/',views.ForgotPassword.as_view()),
-    path('resetPassword',views.ResetPassword.as_view())
+   #  path('resetPassword/',views.ResetPassword.as_view()),
+   path("resetPassword/<str:uidb64>/<str:token>/", views.ResetPassword.as_view()),
+   path('addPersonalDetails/', views.AddPersonalDetails.as_view()),
+    path('getPersonalDetails/', views.GetPersonalDetails.as_view()),
+    path('updatePersonalDetails/<str:email>/', views.UpdatePersonalDetails.as_view()),
+    path('deletePersonalDetails/<str:email>/', views.DeletePersonalDetails.as_view()),
+
 
 
     

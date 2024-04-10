@@ -33,7 +33,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     # role=models.CharField(null=True,blank=True,choices=(('user',"User")),max_length=255)
     date_joined = models.DateTimeField(auto_now_add=True)
 
-    object=CustomUserManager()
+    objects=CustomUserManager()
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]  
     

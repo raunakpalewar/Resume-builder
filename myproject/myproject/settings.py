@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 #     }
 # }
 import os
-
+import ssl
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
@@ -92,7 +92,8 @@ DATABASES = {
         'ENFORCE_SCHEMA': False,
 
         'CLIENT': {
-                'host': 'mongodb+srv://raunakpalewar9979:eCRUMljON3qdBsgo@cluster0.m13o95i.mongodb.net/'
+                'host': 'mongodb+srv://raunakpalewar9979:eCRUMljON3qdBsgo@cluster0.m13o95i.mongodb.net/',
+
             }  
     }
 }
