@@ -889,77 +889,130 @@ class DeleteAchievements(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GetAllDetails(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+# class GetAllDetails(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(
-        operation_description="Get all details of the authenticated user.",
-        operation_summary="Get All Details",
-        manual_parameters=[
-            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
-        ],
-        tags=['User Details'],
-        responses={
-            200: 'User details retrieved successfully',
-        }
-    )
+#     @swagger_auto_schema(
+#         operation_description="Get all details of the authenticated user.",
+#         operation_summary="Get All Details",
+#         manual_parameters=[
+#             openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+#         ],
+#         tags=['User Details'],
+#         responses={
+#             200: 'User details retrieved successfully',
+#         }
+#     )
+#     def get(self, request):
+#         try:
+#             user = request.user
+#             user_details = {
+#                 'personal_details': None,
+#                 'educations': None,
+#                 'experiences': None,
+#                 'skills': None,
+#                 'projects': None,
+#                 'certificates': None,
+#                 'achievements': None
+#             }
+#             # Personal Details
+#             personal_details = PersonalDetails.objects.filter(user=user).first()
+#             if personal_details:
+#                 user_details['personal_details'] = PersonalDetailsSerializer(personal_details).data
+            
+#             # Education
+#             educations = Education.objects.filter(user=user).exclude(degree=None, specialization=None, institution=None).all()
+#             if educations:
+#                 user_details['educations'] = EducationSerializer(educations, many=True).data
+            
+#             # Work Experience
+#             experiences = WorkExperience.objects.filter(user=user).exclude(company=None, position=None).all()
+#             if experiences:
+#                 user_details['experiences'] = WorkExperienceSerializer(experiences, many=True).data
+            
+#             # Skills
+#             skills = Skill.objects.filter(user=user).exclude(skill_name=None).all()
+#             if skills:
+#                 user_details['skills'] = SkillSerializer(skills, many=True).data
+            
+#             # Projects
+#             projects = Project.objects.filter(user=user).exclude(project_name=None).all()
+#             if projects:
+#                 user_details['projects'] = ProjectSerializer(projects, many=True).data
+            
+#             # Certificates
+#             certificates = Certificate.objects.filter(user=user).exclude(certification_name=None).all()
+#             if certificates:
+#                 user_details['certificates'] = CertificateSerializer(certificates, many=True).data
+            
+#             # Achievements
+#             achievements = Achievement.objects.filter(user=user).exclude(achievment_description=None).all()
+#             if achievements:
+#                 user_details['achievements'] = AchievementSerializer(achievements, many=True).data
+            
+#             return Response(user_details, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
+from .serializers import PersonalDetailsSerializer, EducationSerializer, WorkExperienceSerializer, SkillSerializer, ProjectSerializer, CertificateSerializer, AchievementSerializer
+
+
+class GetAllDetails(APIView):
     def get(self, request):
         try:
             user = request.user
-            user_details = {
-                'personal_details': None,
-                'educations': None,
-                'experiences': None,
-                'skills': None,
-                'projects': None,
-                'certificates': None,
-                'achievements': None
+
+            # Retrieve personal details
+            personal_details = PersonalDetails.objects.filter(user=user)
+            personal_details_data = PersonalDetailsSerializer(personal_details, many=True).data
+
+            # Retrieve non-null educations
+            educations = Education.objects.filter(user=user).exclude(degree__isnull=True)
+            educations_data = EducationSerializer(educations, many=True).data
+
+            # Retrieve non-null experiences
+            experiences = WorkExperience.objects.filter(user=user).exclude(company__isnull=True)
+            experiences_data = WorkExperienceSerializer(experiences, many=True).data
+
+            # Retrieve non-null skills
+            skills = Skill.objects.filter(user=user).exclude(skill_name__isnull=True)
+            skills_data = SkillSerializer(skills, many=True).data
+
+            # Retrieve non-null projects
+            projects = Project.objects.filter(user=user).exclude(project_name__isnull=True)
+            projects_data = ProjectSerializer(projects, many=True).data
+
+            # Retrieve non-null certificates
+            certificates = Certificate.objects.filter(user=user).exclude(certification_name__isnull=True)
+            certificates_data = CertificateSerializer(certificates, many=True).data
+
+            # Retrieve non-null achievements
+            achievements = Achievement.objects.filter(user=user).exclude(achievment_description__isnull=True)
+            achievements_data = AchievementSerializer(achievements, many=True).data
+
+            response_data = {
+                "personal_details": personal_details_data,
+                "educations": educations_data,
+                "experiences": experiences_data,
+                "skills": skills_data,
+                "projects": projects_data,
+                "certificates": certificates_data,
+                "achievements": achievements_data
             }
-            # Personal Details
-            personal_details = PersonalDetails.objects.filter(user=user).first()
-            if personal_details:
-                user_details['personal_details'] = PersonalDetailsSerializer(personal_details).data
-            
-            # Education
-            educations = Education.objects.filter(user=user).exclude(degree=None, specialization=None, institution=None).all()
-            if educations:
-                user_details['educations'] = EducationSerializer(educations, many=True).data
-            
-            # Work Experience
-            experiences = WorkExperience.objects.filter(user=user).exclude(company=None, position=None).all()
-            if experiences:
-                user_details['experiences'] = WorkExperienceSerializer(experiences, many=True).data
-            
-            # Skills
-            skills = Skill.objects.filter(user=user).exclude(skill_name=None).all()
-            if skills:
-                user_details['skills'] = SkillSerializer(skills, many=True).data
-            
-            # Projects
-            projects = Project.objects.filter(user=user).exclude(project_name=None).all()
-            if projects:
-                user_details['projects'] = ProjectSerializer(projects, many=True).data
-            
-            # Certificates
-            certificates = Certificate.objects.filter(user=user).exclude(certification_name=None).all()
-            if certificates:
-                user_details['certificates'] = CertificateSerializer(certificates, many=True).data
-            
-            # Achievements
-            achievements = Achievement.objects.filter(user=user).exclude(achievment_description=None).all()
-            if achievements:
-                user_details['achievements'] = AchievementSerializer(achievements, many=True).data
-            
-            return Response(user_details, status=status.HTTP_200_OK)
+
+            return Response(response_data)
         except Exception as e:
             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class AnalyseData(APIView):
-
-
     @swagger_auto_schema(
         operation_description="Provide analytics data on user activity.",
         operation_summary="Analyse Data",
@@ -1008,6 +1061,76 @@ class AnalyseData(APIView):
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+
+
+
+# class ExportResume(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     @swagger_auto_schema(
+#         operation_description="Export resume details to PDF.",
+#         operation_summary="Export Resume",
+#         manual_parameters=[
+#             openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+#         ],
+#         tags=['Resume'],
+#         responses={
+#             200: 'Resume details exported successfully',
+#         }
+#     )
+#     def get(self, request):
+#         try:
+#             user = request.user
+
+#             # Fetch user's resume details
+#             personal_details = PersonalDetails.objects.get(user=user)
+#             educations = Education.objects.filter(user=user).all()
+#             experiences = WorkExperience.objects.filter(user=user).all()
+#             skills = Skill.objects.filter(user=user).all()
+#             projects = Project.objects.filter(user=user).all()
+#             certificates = Certificate.objects.filter(user=user).all()
+#             achievements = Achievement.objects.filter(user=user).all()
+
+#             # Create a PDF document
+#             response = HttpResponse(content_type='application/pdf')
+#             response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+#             p = canvas.Canvas(response, pagesize=letter)
+
+#             # Add resume details to PDF
+#             p.drawString(100, 800, 'Personal Details:')
+#             p.drawString(100, 780, f'Mobile Number: {personal_details.mobile_number}')
+#             p.drawString(100, 760, f'Address: {personal_details.address}')
+#             # Add more personal details as needed
+
+#             # Add education details to PDF
+#             p.drawString(100, 700, 'Education:')
+#             y_position = 680
+#             for education in educations:
+#                 p.drawString(100, y_position, f'Degree: {education.degree}')
+#                 p.drawString(100, y_position - 20, f'Institution: {education.institution}')
+#                 # Add more education details as needed
+#                 y_position -= 40
+
+#             # Add work experience details to PDF
+#             # Add skills, projects, certificates, achievements similarly
+
+#             p.showPage()
+#             p.save()
+
+#             return response
+#         except Exception as e:
+#             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
+
+
 class ExportResume(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -1029,39 +1152,39 @@ class ExportResume(APIView):
 
             # Fetch user's resume details
             personal_details = PersonalDetails.objects.get(user=user)
-            educations = Education.objects.filter(user=user).all()
-            experiences = WorkExperience.objects.filter(user=user).all()
-            skills = Skill.objects.filter(user=user).all()
-            projects = Project.objects.filter(user=user).all()
-            certificates = Certificate.objects.filter(user=user).all()
-            achievements = Achievement.objects.filter(user=user).all()
+            educations = Education.objects.filter(user=user).exclude(degree__isnull=True)
+            experiences = WorkExperience.objects.filter(user=user).exclude(company__isnull=True)
+            skills = Skill.objects.filter(user=user).exclude(skill_name__isnull=True)
+            projects = Project.objects.filter(user=user).exclude(project_name__isnull=True)
+            certificates = Certificate.objects.filter(user=user).exclude(certification_name__isnull=True)
+            achievements = Achievement.objects.filter(user=user).exclude(achievment_description__isnull=True)
 
-            # Create a PDF document
+            # Create resume HTML content
+            template = get_template('resume_template.html')
+            context = {
+                'personal_details': personal_details,
+                'educations': educations,
+                'experiences': experiences,
+                'skills': skills,
+                'projects': projects,
+                'certificates': certificates,
+                'achievements': achievements,
+            }
+            html = template.render(context)
+
+            # Create PDF from HTML content
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
-            p = canvas.Canvas(response, pagesize=letter)
+            pisa_status = pisa.CreatePDF(html, dest=response)
 
-            # Add resume details to PDF
-            p.drawString(100, 800, 'Personal Details:')
-            p.drawString(100, 780, f'Mobile Number: {personal_details.mobile_number}')
-            p.drawString(100, 760, f'Address: {personal_details.address}')
-            # Add more personal details as needed
-
-            # Add education details to PDF
-            p.drawString(100, 700, 'Education:')
-            y_position = 680
-            for education in educations:
-                p.drawString(100, y_position, f'Degree: {education.degree}')
-                p.drawString(100, y_position - 20, f'Institution: {education.institution}')
-                # Add more education details as needed
-                y_position -= 40
-
-            # Add work experience details to PDF
-            # Add skills, projects, certificates, achievements similarly
-
-            p.showPage()
-            p.save()
+            if pisa_status.err:
+                return HttpResponse('PDF generation error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return response
         except Exception as e:
             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+def render_page(request):
+    return render (request,'resume_template.html')

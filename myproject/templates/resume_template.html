@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div>
+        <h1 class="fullname">Full Name : {{ personal_details.fullname }}</h1>
+        <div class="top_section">     
+            <p>Email: {{ personal_details.email }}</p>
+            <p>Mobile Number: {{ personal_details.mobile_number }}</p>
+            <p>LinkedIn: {{ personal_details.linkedin }}</p>
+            <p>Github: {{ personal_details.github }}</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2 class="section-title">Abstract</h2>
+        <p class="section-content">{{ personal_details.abstract }}</p>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2 class="section-title">Education</h2>
+        {% for education in educations %}
+            <div class="section-content">
+                <p>Degree: {{ education.degree }}</p>
+                <p>Institution: {{ education.institution }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <!-- Add sections for work experience, skills, projects, certificates, achievements -->
+
+</body>
+</html>

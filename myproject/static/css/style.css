@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    width: 100vw;
+}
+.section {
+    margin-bottom: 20px;
+}
+.section-title {
+    font-weight: bold;
+}
+.section-content {
+    margin-left: 20px;
+}
+.fullname{
+   text-align: center;
+   align-items: center;
+   display: grid;
+   justify-content: center;
+   font-weight: 900;
+   text-decoration: underline;
+
+}
+.top_section{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: row;
+    gap:20%
+}

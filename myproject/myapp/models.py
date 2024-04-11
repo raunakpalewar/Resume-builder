@@ -42,6 +42,7 @@ class User(AbstractBaseUser,PermissionsMixin):
 
 class PersonalDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    full_name=models.CharField(max_length=255, null=True,blank=True)
     mobile_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
