@@ -30,17 +30,115 @@
 
     <div class="section">
         <h2 class="section-title">Education</h2>
-        {% for education in educations %}
             <div class="section-content">
-                <p>Degree: {{ education.degree }}</p>
-                <p>Institution: {{ education.institution }}</p>
+                <div class="edu_sub">
+                    <div > <h3>Degree: {{ education.degree }}</h3></div>
+                    <div class="right_content">Date: {{ education.end_date }}</div>
+                </div>
+                <div class="edu_sub">
+                    <div><h4>Specilization : {{ education.specilization }}</h4></div>
+                    <div class="right_content"><h4>Grade : {{ education.grade }}</h4></div>
+                </div>
+                <div class="edu_sub">
+                    <div><h4>Institution: {{ education.institution }}</h4></div>
+                    <div class="right_content"><h5>University: {{ education.university }}</h5></div>
+                </div>
             </div>
-        {% endfor %}
     </div>
 
     <hr>
 
-    <!-- Add sections for work experience, skills, projects, certificates, achievements -->
+    <div class="section">
+        <h2 class="section-title">Experience: </h2>
+        <div class="section-content">
+            <div class="sub_edu">
+                <div><h3>Company : </h3></div>
+                <div class="right_content"> start date - end date</div>
+            </div>
+            <div class="sub_edu">
+                <div> Postion : </div>
+                <div class="right_content"> Location </div>
+
+            </div>
+            <div>
+                <p>Description : </p>
+            </div>
+
+        </div>
+
+    </div>
+    
+    <hr>
+
+    <div class="section">
+        <div class="section-title"><h2>Skills</h2></div>
+        <div class="section-content">
+            <div class="skills">
+                Python
+            </div>
+            <div class="skills">
+                java
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <div class="section-title"><h2>Projects</h2></div>
+        <div class="section-content">
+            <div class="edu_sub">
+                <div> <a href=""><h3>Project Name</h3> </a></div>
+                <div class="right_content">date</div>
+            </div>
+            <div>
+                Description
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+    <div class="section">
+        <div class="section-title"><h2>Certificates :</h2>  </div>
+        <div class="section-content">
+            <ul>
+                <li> <a href="">certificate name :</a>  source</li>
+            </ul>
+        </div>
+        
+
+    </div>
+
+    <hr>
+        <div class="section">
+            <div class="section-title"><h2>Achievement :</h2>  </div>
+            <div class="section-content">
+                <ul>
+                    <li>
+                        <div>Achievement Desription</div>
+                        <div>Date</div>
+                    
+                    </li>
+                </ul>
+            </div>
+        </div>
+    <hr>
+    <div class="section">
+        <div class="section-title">Personal Details </div>
+        <div class="section-content">
+            <ul>
+                <li>Date of Birth  </li>
+                <li> Address </li>
+                <li> Languages </li>
+                <li>Hobbies</li>
+            </ul>
+        </div>
+
+    </div>
+
+
 
 </body>
 </html>

@@ -1,28 +1,54 @@
 body {
     font-family: Arial, sans-serif;
-    width: 100vw;
+    margin:25px 40px 25px 40px 
 }
+
 .section {
     margin-bottom: 20px;
 }
+
 .section-title {
     font-weight: bold;
+    text-decoration: underline;
 }
+
 .section-content {
     margin-left: 20px;
 }
-.fullname{
-   text-align: center;
-   align-items: center;
-   display: grid;
-   justify-content: center;
-   font-weight: 900;
-   text-decoration: underline;
 
+.fullname {
+    text-align: center;
+    font-weight: 900;
+    text-decoration: underline;
 }
-.top_section{
+
+.top_section {
     display: flex;
     flex-direction: row;
-    flex-wrap: row;
-    gap:20%
+    justify-content: space-around;
+}
+
+.edu_sub {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Distribute items evenly along the main axis */
+    margin-bottom: 10px; /* Add some margin between education sub-sections */
+}
+
+.right_content {
+    text-align: right;
+}
+hr{
+border: 1px solid black;
+}
+
+.skills{
+    display: inline-block;
+    border: 1px solid black;
+    padding:5px;
+    margin: 2px;
+}
+a{
+    color: black;
+    text-decoration: none;
 }

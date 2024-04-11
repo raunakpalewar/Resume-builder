@@ -59,9 +59,10 @@ class PersonalDetails(models.Model):
 class Education(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     degree = models.CharField(max_length=100)
-    specialization=models.CharField(max_length=255)
+    specialization=models.CharField(max_length=255,null=True,blank=True)
     institution = models.CharField(max_length=100)
-    start_date = models.DateField()
+    university=models.CharField(max_length=255,blank=True,null=True)
+    # start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     grade=models.IntegerField()
 
