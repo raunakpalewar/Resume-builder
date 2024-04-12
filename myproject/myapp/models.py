@@ -43,6 +43,7 @@ class User(AbstractBaseUser,PermissionsMixin):
 class PersonalDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name=models.CharField(max_length=255, null=True,blank=True)
+    email_id=models.EmailField(null=True,blank=True)
     mobile_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
@@ -64,7 +65,8 @@ class Education(models.Model):
     university=models.CharField(max_length=255,blank=True,null=True)
     # start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
-    grade=models.IntegerField()
+    # grade=models.IntegerField()
+    percent=models.CharField(max_length=255,null=True,blank=True)
 
 class WorkExperience(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

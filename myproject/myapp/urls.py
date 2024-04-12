@@ -22,13 +22,12 @@ schema_view = get_schema_view(
    public=True,
    permission_classes=(permissions.AllowAny,),
 )
-
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('user_registration',views.UserRegistration.as_view()),
-    path('login/',views.Login.as_view()),
-    path('logout/',views.UserLogout.as_view()),
-    path('forgotPassword/',views.ForgotPassword.as_view()),
+    path('user_registration/', views.UserRegistration.as_view()),
+    path('login/', views.Login.as_view()),
+    path('logout/', views.UserLogout.as_view()),
+    path('forgotPassword/', views.ForgotPassword.as_view()),
     path("resetPassword/<str:uidb64>/<str:token>/", views.ResetPassword.as_view()),
     path('addPersonalDetails/', views.AddPersonalDetails.as_view()),
     path('getPersonalDetails/', views.GetPersonalDetails.as_view()),
@@ -57,8 +56,13 @@ urlpatterns = [
     path('getAllDetails/', views.GetAllDetails.as_view()),
     path('analyseData/', views.AnalyseData.as_view()),
     path('exportResume/', views.ExportResume.as_view()),
-    
-    path('htmlformat/',views.render_page,name='htmlformat')
+    path('addProject/', views.AddProject.as_view()),
+    path('getProjects/', views.GetProjects.as_view()),
+    path('updateProject/', views.UpdateProject.as_view()),
+    path('deleteProject/', views.DeleteProject.as_view()),
+    path('htmlformat/', views.render_page, name='htmlformat'),
+    path('render_page_Data/', views.render_page_data, name='render_page_Data'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

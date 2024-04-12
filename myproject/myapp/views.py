@@ -24,6 +24,20 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
+from .serializers import PersonalDetailsSerializer, EducationSerializer, WorkExperienceSerializer, SkillSerializer, ProjectSerializer, CertificateSerializer, AchievementSerializer
+from .models import User
+
+
+
+
+
+
+
+
+
 
 def send_updated_resume_email(email):
     subject = "Your Updated Resume"
@@ -51,7 +65,7 @@ def email_validate(email):
     if not email or not re.match(email_regex, email):
         raise ValueError("Invalid email format")
 
-from .models import User
+
 
 class UserRegistration(APIView):
     permission_classes = [AllowAny]
@@ -671,6 +685,113 @@ class DeleteSkill(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
+class AddProject(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Add a new project.",
+        operation_summary="Add Project",
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
+        tags=['Projects'],
+        request_body=ProjectSerializer,
+        responses={
+            201: 'Project added successfully',
+            400: 'Bad request: Invalid data provided'
+        }
+    )
+    def post(self, request):
+        try:
+            user=request.user
+            request.data['user']=user.pk
+            serializer = ProjectSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetProjects(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get all projects.",
+        operation_summary="Get Projects",
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
+        tags=['Projects'],
+        responses={
+            200: 'Projects retrieved successfully',
+        }
+    )
+    def get(self, request):
+        try:
+            projects = Project.objects.all()
+            serializer = ProjectSerializer(projects, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UpdateProject(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Update an existing project.",
+        operation_summary="Update Project",
+        tags=['Projects'],
+        request_body=ProjectSerializer,
+        responses={
+            200: 'Project updated successfully',
+            400: 'Bad request: Invalid data provided',
+            404: 'Project not found'
+        }
+    )
+    def put(self, request, pk):
+        try:
+            project = Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            return Response({'message': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            serializer = ProjectSerializer(project, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DeleteProject(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Delete a project.",
+        operation_summary="Delete Project",
+        tags=['Projects'],
+        responses={
+            204: 'Project deleted successfully',
+            404: 'Project not found'
+        }
+    )
+    def delete(self, request, pk):
+        try:
+            project = Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            return Response({'message': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
 class AddCertificate(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -958,13 +1079,21 @@ class DeleteAchievements(APIView):
 
 
 
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
-from .serializers import PersonalDetailsSerializer, EducationSerializer, WorkExperienceSerializer, SkillSerializer, ProjectSerializer, CertificateSerializer, AchievementSerializer
-
 
 class GetAllDetails(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(
+        operation_description="Get all details of the authenticated user.",
+        operation_summary="Get All Details",
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
+        tags=['User Details'],
+        responses={
+            200: 'User details retrieved successfully',
+        }
+    )
     def get(self, request):
         try:
             user = request.user
@@ -1188,3 +1317,30 @@ class ExportResume(APIView):
 
 def render_page(request):
     return render (request,'resume_template.html')
+
+
+
+def render_page_data(request):
+    # Fetch user's resume details and create HTML content
+    user = 1
+    personal_details = PersonalDetails.objects.get(email_id='raunakpalewar9979@gmail.com')
+    educations = Education.objects.filter(user=user).exclude(degree__isnull=True)
+    experiences = WorkExperience.objects.filter(user=user).exclude(company__isnull=True)
+    skills = Skill.objects.filter(user=user).exclude(skill_name__isnull=True)
+    projects = Project.objects.filter(user=user).exclude(project_name__isnull=True)
+    certificates = Certificate.objects.filter(user=user).exclude(certification_name__isnull=True)
+    achievements = Achievement.objects.filter(user=user).exclude(achievment_description__isnull=True)
+
+    template = get_template('resume_template.html')
+    context = {
+        'personal_details': personal_details,
+        'educations': educations,
+        'experiences': experiences,
+        'skills': skills,
+        'projects': projects,
+        'certificates': certificates,
+        'achievements': achievements,
+    }
+    html = template.render(context)
+    
+    return HttpResponse(html)

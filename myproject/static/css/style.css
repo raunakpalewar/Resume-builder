@@ -1,45 +1,75 @@
 body {
     font-family: Arial, sans-serif;
-    margin:25px 40px 25px 40px 
+    margin:25px 40px 25px 40px ;
+    display: static;
+    color:black;
+    text-align: justify;
+    text-transform: capitalize;
+}
+a{
+    color: black;
+    text-decoration: none;
 }
 
+
 .section {
-    margin-bottom: 20px;
+    margin-top:10px;
+    margin-bottom: 10px;
 }
 
 .section-title {
     font-weight: bold;
     text-decoration: underline;
+    margin-bottom: 10px;
+    padding: 0;
 }
 
 .section-content {
     margin-left: 20px;
+    font-size: 14px;
 }
 
 .fullname {
     text-align: center;
+    font-size: 3em;
     font-weight: 900;
     text-decoration: underline;
 }
 
 .top_section {
     display: flex;
+    font-size: 12px;
     flex-direction: row;
+    flex-wrap: row;
+    margin-top:20px;
+    margin-bottom: 20px;
     justify-content: space-around;
+}
+.personal {
+    display: flex;
+    flex-direction: row;
 }
 
 .edu_sub {
     display: flex;
     flex-direction: row;
     justify-content: space-between; /* Distribute items evenly along the main axis */
-    margin-bottom: 10px; /* Add some margin between education sub-sections */
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
+    height: fit-content;
+    align-items: center;
+    line-height: 1;
 }
-
 .right_content {
     text-align: right;
+    font-weight: 200;
+    font-style: italic;
 }
 hr{
-border: 1px solid black;
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
 }
 
 .skills{
@@ -47,8 +77,31 @@ border: 1px solid black;
     border: 1px solid black;
     padding:5px;
     margin: 2px;
+    margin-bottom: 5px;
 }
-a{
-    color: black;
-    text-decoration: none;
+
+.sub_section{
+    /* margin-top:5px; */
+    margin-bottom: 15px;
+}
+.descrip{
+    text-align: justify;
+    padding-left:10px;
+    margin-bottom: 15px;
+}
+h1,h2,h3,h4,h5,h6,p{
+    margin: 0;
+    padding: 0;
+}
+h1,h2{
+    text-transform: uppercase;
+}
+ul,li{
+    /* margin-left: 5px; */
+    padding:0;
+    margin-bottom:5px;
+}
+
+.it_letter{
+    font-style: italic;
 }
