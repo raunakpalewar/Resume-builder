@@ -29,6 +29,16 @@ from rest_framework.views import APIView
 from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
 from .serializers import PersonalDetailsSerializer, EducationSerializer, WorkExperienceSerializer, SkillSerializer, ProjectSerializer, CertificateSerializer, AchievementSerializer
 from .models import User
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
+import pdfkit
+import os 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
 
 
 
@@ -1187,77 +1197,15 @@ class AnalyseData(APIView):
         most_common_skills = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)
         return most_common_skills[:5]  # Return top 5 most common skills
 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 
-
-
-
-# class ExportResume(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     @swagger_auto_schema(
-#         operation_description="Export resume details to PDF.",
-#         operation_summary="Export Resume",
-#         manual_parameters=[
-#             openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
-#         ],
-#         tags=['Resume'],
-#         responses={
-#             200: 'Resume details exported successfully',
-#         }
-#     )
-#     def get(self, request):
-#         try:
-#             user = request.user
-
-#             # Fetch user's resume details
-#             personal_details = PersonalDetails.objects.get(user=user)
-#             educations = Education.objects.filter(user=user).all()
-#             experiences = WorkExperience.objects.filter(user=user).all()
-#             skills = Skill.objects.filter(user=user).all()
-#             projects = Project.objects.filter(user=user).all()
-#             certificates = Certificate.objects.filter(user=user).all()
-#             achievements = Achievement.objects.filter(user=user).all()
-
-#             # Create a PDF document
-#             response = HttpResponse(content_type='application/pdf')
-#             response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
-#             p = canvas.Canvas(response, pagesize=letter)
-
-#             # Add resume details to PDF
-#             p.drawString(100, 800, 'Personal Details:')
-#             p.drawString(100, 780, f'Mobile Number: {personal_details.mobile_number}')
-#             p.drawString(100, 760, f'Address: {personal_details.address}')
-#             # Add more personal details as needed
-
-#             # Add education details to PDF
-#             p.drawString(100, 700, 'Education:')
-#             y_position = 680
-#             for education in educations:
-#                 p.drawString(100, y_position, f'Degree: {education.degree}')
-#                 p.drawString(100, y_position - 20, f'Institution: {education.institution}')
-#                 # Add more education details as needed
-#                 y_position -= 40
-
-#             # Add work experience details to PDF
-#             # Add skills, projects, certificates, achievements similarly
-
-#             p.showPage()
-#             p.save()
-
-#             return response
-#         except Exception as e:
-#             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
+from weasyprint import HTML
 from django.http import HttpResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from django.template.loader import get_template
-from xhtml2pdf import pisa
-from io import BytesIO
-from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
+from django.utils.safestring import mark_safe
+from django.conf import settings
 
 
 class ExportResume(APIView):
@@ -1299,20 +1247,20 @@ class ExportResume(APIView):
                 'certificates': certificates,
                 'achievements': achievements,
             }
-            html = template.render(context)
+            html_string = template.render(context)
+            html = mark_safe(html_string)
 
             # Create PDF from HTML content
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
-            pisa_status = pisa.CreatePDF(html, dest=response)
+            pdf_file = HTML(string=html).write_pdf()
 
-            if pisa_status.err:
-                return HttpResponse('PDF generation error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Create an HttpResponse object and write the PDF content to it
+            full_name = personal_details.full_name.replace(" ", "_")
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{full_name}_resume.pdf"'
 
             return response
         except Exception as e:
             return Response({"Response": f'{str(e)}', "status": status.HTTP_500_INTERNAL_SERVER_ERROR}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 def render_page(request):
@@ -1344,3 +1292,5 @@ def render_page_data(request):
     html = template.render(context)
     
     return HttpResponse(html)
+
+

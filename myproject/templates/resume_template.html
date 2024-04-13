@@ -2,48 +2,66 @@
 {% load static %}
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume</title>
     <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
     <style>
-        body {
-        font-family: Arial, sans-serif;
-        margin:25px 40px 25px 40px ;
-        display: static;
-        color:black;
-        text-align: justify;
-        text-transform: capitalize;
+        @page {
+            size: A4;
+            margin: 37px 25px 30px 25px;
+            box-sizing: border-box;
+
         }
-        a{
+
+        body {
+            font-family: Arial, sans-serif;
+            display: static;
+            color: black;
+            text-align: justify;
+            text-transform: capitalize;
+        }
+
+        a {
             color: black;
             text-decoration: none;
         }
 
 
         .section {
-            margin-top:10px;
-            margin-bottom: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            page-break-inside: avoid;
+
         }
 
         .section-title {
-            font-weight: bold;
             text-decoration: underline;
             margin-bottom: 10px;
             padding: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            font-weight: 600;
+            font-style: bold;
+            page-break-before: avoid;
+            letter-spacing: 5px;
+
         }
 
         .section-content {
             margin-left: 20px;
             font-size: 14px;
+
         }
 
         .fullname {
             text-align: center;
             font-size: 3em;
             font-weight: 900;
-            text-decoration: underline;
+            margin:0;
+            padding: 0;
         }
 
         .top_section {
@@ -51,21 +69,35 @@
             font-size: 12px;
             flex-direction: row;
             flex-wrap: row;
-            margin-top:20px;
-            margin-bottom: 20px;
-            justify-content: space-around;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            justify-content: space-between;
             text-decoration: none;
             text-transform: none;
+
         }
+
         .personal {
             display: flex;
             flex-direction: row;
         }
 
+        .personal {
+            margin-right: 10px;
+            /* Adjust this value to control the spacing between elements */
+        }
+
+        .personal:last-child {
+            margin-right: 0;
+            /* Remove margin from the last element to avoid extra spacing */
+        }
+
         .edu_sub {
             display: flex;
             flex-direction: row;
-            justify-content: space-between; /* Distribute items evenly along the main axis */
+            justify-content: space-between;
+            /* Distribute items evenly along the main axis */
             margin: 0;
             margin-bottom: 5px;
             padding: 0;
@@ -73,176 +105,221 @@
             align-items: center;
             line-height: 1;
         }
+
         .right_content {
             text-align: right;
             font-weight: 200;
             font-style: italic;
-        }
-        hr{
-            border: 1px solid black;
-            margin: 0;
-            padding: 0;
+            
         }
 
-        .skills{
+        hr {
+            border: 0.8px solid rgb(59, 58, 58);
+            margin: 0;
+            padding: 0;
+            page-break-after: avoid;
+
+        }
+
+        .skills {
             display: inline-block;
             border: 1px solid black;
-            padding:5px;
+            padding: 5px;
             margin: 2px;
             margin-bottom: 5px;
         }
 
-        .sub_section{
+        .sub_section {
             /* margin-top:5px; */
             margin-bottom: 15px;
         }
-        .descrip{
+
+        .descrip {
             text-align: justify;
-            padding-left:10px;
+            padding-left: 10px;
             margin-bottom: 15px;
+            word-spacing: 0.3em;
+            line-height: 1.2;
+
         }
-        h1,h2,h3,h4,h5,h6,p{
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
             margin: 0;
             padding: 0;
         }
-        h1,h2{
+
+        h2 {
             text-transform: uppercase;
         }
-        ul,li{
+
+        ul,
+        li {
             /* margin-left: 5px; */
-            padding:0;
-            margin-bottom:5px;
+            padding: 0;
+            margin-bottom: 5px;
         }
 
-        .it_letter{
+        .it_letter {
             font-style: italic;
+        }
+
+        .sub_title {
+            font-size: 16px;
+            font-weight: 600;
+            font-style: bold;
+
         }
     </style>
 </head>
 
 <body>
+    <script>
+        window.onload = function () {
+            adjustLastSectionMargin();
+        };
+
+        function adjustLastSectionMargin() {
+            var sections = document.getElementsByClassName('section');
+            var lastSection = sections[sections.length - 1];
+            var pageHeight = document.documentElement.clientHeight;
+            var lastSectionBottom = lastSection.getBoundingClientRect().bottom;
+            var remainingSpace = pageHeight - lastSectionBottom;
+            if (remainingSpace < 35) {
+                lastSection.style.marginBottom = '35mm';
+            }
+        }
+    </script>
+
     <div>
-        <a href="{{ personal_detail.personal_website }}"> <h1 class="fullname">{{ personal_details.full_name }}</h1></a>
-        <div class="top_section">     
+        <a href="{{ personal_detail.personal_website }}">
+            <h1 class="fullname">{{ personal_details.full_name }}</h1>
+        </a>
+        <div class="top_section">
             {% if personal_details.email_id %}
-                <div class="personal"> <a href="mailto:{{personal_details.user_email}}"> {{ personal_details.email_id }}</a></div>
+            <div class="personal"> <a href="mailto:{{personal_details.user_email}}"> {{ personal_details.email_id }}</a>
+            </div>
             {% endif %}
             {% if personal_details.mobile_number %}
-                <div class="personal"> {{ personal_details.mobile_number }} </div>
+            <div class="personal"> {{ personal_details.mobile_number }} </div>
             {% endif %}
             {% if personal_details.linkedin %}
-                <div class="personal"><a href="{{personal_details.linkedin}}"> {{ personal_details.linkedin }}</a></div>
+            <div class="personal"><a href="{{personal_details.linkedin}}"> {{ personal_details.linkedin }}</a></div>
             {% endif %}
             {% if personal_details.github %}
-                <div class="personal"><a href="{{personal_details.github}}">{{ personal_details.github }}</a></div>
+            <div class="personal"><a href="{{personal_details.github}}">{{ personal_details.github }}</a></div>
             {% endif %}
         </div>
     </div>
+    <hr>
     {% if personal_details.abstract %}
-        <hr>
-        <div class="section">
-            <h2 class="section-title">Abstract</h2>
-            <p class="section-content">
-                {{ personal_details.abstract }}
-            </p>
-        </div>
+    <div class="section">
+        <div class="section-title">Abstract</div>
+        <p class="section-content">
+            {{ personal_details.abstract }}
+        </p>
+    </div>
+    <hr>
     {% endif %}
 
-    <hr>
     <div class="section">
-        <h2 class="section-title">Education</h2>
+        <div class="section-title">Education</div>
         <div class="section-content">
             {% for education in educations %}
-                <div class="sub_section">
-                    <div class="edu_sub">
-                        {% if education.degree %}
-                            <div>
-                                <h3> {{ education.degree }}</h3>
-                            </div>
-                        {% endif %}
-                        {% if education.end_date %}
-                            <div class="right_content"> 
-                                <b>{{ education.end_date }}</b>
-                            </div>
-                        {% endif %}
+            <div class="sub_section">
+                <div class="edu_sub">
+                    {% if education.degree %}
+                    <div class="sub_title">
+                        {{ education.degree }}
                     </div>
-                    <div class="edu_sub">
-                        <div>
-                            {% if education.specialization %}
-                                {{ education.specialization }}
-                            {% endif %}
-                        </div>
-                        {% if education.percent %}
-                            <div class="right_content">{{education.percent }} % </h4></div>
-                        {% endif %}
+                    {% endif %}
+                    {% if education.end_date %}
+                    <div class="right_content">
+                        <b>{{ education.end_date|date:"F Y" }}</b>
                     </div>
-                    <div class="edu_sub">
-                        {% if education.institution %}
-                            <div>
-                                {{ education.institution }}
-                            </div>
-                        {% endif %}
-                        {% if education.university %}
-                            <div class="right_content">
-                                {{ education.university }}
-                            </div>
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
+                <div class="edu_sub">
+                    <div>
+                        {% if education.specialization %}
+                        {{ education.specialization }}
+                        {% endif %}
+                    </div>
+                    {% if education.percent %}
+                    <div class="right_content">{{education.percent }} % </h4>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="edu_sub">
+                    {% if education.institution %}
+                    <div>
+                        {{ education.institution }}
+                    </div>
+                    {% endif %}
+                    {% if education.university %}
+                    <div class="right_content">
+                        {{ education.university }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
             {% endfor %}
         </div>
     </div>
+    <hr>
 
     {% if experiences %}
-        <hr>
-        <div class="section">
-            <h2 class="section-title">Experience</h2>
-            <div class="section-content">
-                {% for experience in experiences %}
-                    <div class="sub_section">
-                        <div class="edu_sub">
-                            {% if experience.company %}
-                                <div>
-                                    <h3>  {{ experience.company }}</h3>
-                                </div>
-                            {% endif %}
-                            {% if experience.start_date and experience.end_date %}
-                                <div class="right_content">
-                                     {{ experience.start_date }} -  {{ experience.end_date }} 
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="edu_sub">
-                            {% if experience.position %}
-                                <div> 
-                                    {{ experience.position }}
-                                 </div>
-                            {% endif %}
-                            {% if experience.location %}
-                                <div class="right_content">
-                                    {{ experience.location }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="descrip">
-                            {% if experience.description %}
-                                <ul>
-                                    <li>
-                                        <p> {{ experience.description }} </p>
-                                    </li>
-                                </ul>
-                            {% endif %}
-                        </div>
+    <div class="section">
+        <div class="section-title">Experience</div>
+        <div class="section-content">
+            {% for experience in experiences %}
+            <div class="sub_section">
+                <div class="edu_sub">
+                    {% if experience.company %}
+                    <div class="sub_title">
+                        {{ experience.company }}
                     </div>
-                {% endfor %}
+                    {% endif %}
+                    {% if experience.start_date and experience.end_date %}
+                    <div class="right_content">
+                        {{ experience.start_date|date:"F Y" }} - {{ experience.end_date|date:"F Y" }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="edu_sub">
+                    {% if experience.position %}
+                    <div>
+                        {{ experience.position }}
+                    </div>
+                    {% endif %}
+                    {% if experience.location %}
+                    <div class="right_content">
+                        {{ experience.location }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="descrip">
+                    {% if experience.description %}
+
+                    {{ experience.description }}
+
+                    {% endif %}
+                </div>
             </div>
+            {% endfor %}
         </div>
+    </div>
+    <hr>
     {% endif %}
 
-    
-    <hr>
+
     <div class="section">
-        <h2 class="section-title">Skills</h2>
+        <div class="section-title">Skills</div>
         <div class="section-content">
             {% for skill in skills %}
             <div class="skills">
@@ -251,107 +328,112 @@
             {% endfor %}
         </div>
     </div>
-    
-    {%if projects %}
     <hr>
+
+    {%if projects %}
     <div class="section">
-        <h2 class="section-title">Projects</h2>
+        <div class="section-title">Projects</div>
         <div class="section-content">
             {% for project in projects %}
             <div class="sub_section">
                 <div class="edu_sub">
                     {% if project.project_name %}
-                    <div> <a href="{{ project.project_link }}"><h3>{{ project.project_name }}</h3> </a></div>
+                    <div class="sub_title"> <a href="{{ project.project_link }}">
+                            {{ project.project_name }} </a>
+                    </div>
                     {% endif %}
                     {% if project.date %}
-                    <div class="right_content"> {{ project.date }}</div>
+                    <div class="right_content"> {{ project.date|date:"F Y" }}</div>
                     {% endif %}
                 </div>
                 <div class="descrip">
                     {% if project.project_description %}
+
                     {{ project.project_description }}
+
                     {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
+    <hr>
     {% endif %}
     {% if certificates%}
-        <hr>
-        <div class="section">
-            <h2 class="section-title">Certificates</h2>
-            <div class="section-content">
-                <ul>
-                    {% for certificate in certificates %}
-                    <li> 
-                        {% if  certificate.certification_name %}
-                        <a href="{{ certificate.certificate_link }}">{{ certificate.certification_name }} </a>
-                        {% endif %}
-                        {% if certificate.source %}
-                        : {{ certificate.source }}
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+    <div class="section">
+        <div class="section-title">Certificates</div>
+        <div class="section-content">
+            <ul>
+                {% for certificate in certificates %}
+                <li>
+                    {% if certificate.certification_name %}
+                    <a href="{{ certificate.certificate_link }}">{{ certificate.certification_name }} </a>
+                    {% endif %}
+                    {% if certificate.source %}
+                    : {{ certificate.source }}
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
         </div>
+    </div>
+    <hr>
     {% endif %}
 
     {%if achievements %}
-        <hr>
-        <div class="section">
-            <h2 class="section-title">Achievement</h2>
-            <div class="section-content">
-                <ul>
-                    {% for achievement in achievements %}
-                    <div class="">
-                        <li>
-                            {% if achievement.achievment_description %}
-                            <div>{{ achievement.achievment_description }}</div>
-                            {% endif %}
-                            {% if achievement.date %}
-                            <div class="it_letter">{{ achievement.date }}</div>
-                            {% endif %}
-                        </li>
-                    </div>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    {% endif %}
-    <hr>
     <div class="section">
-        <h2 class="section-title">Personal Details</h2>
+        <div class="section-title">Achievement</div>
+        <div class="section-content">
+            <ul>
+                {% for achievement in achievements %}
+                <div class="">
+                    <li>
+                        {% if achievement.achievment_description %}
+                        <div>{{ achievement.achievment_description }}</div>
+                        {% endif %}
+                        {% if achievement.date %}
+                        <div class="it_letter">{{ achievement.date|date:"F Y" }}</div>
+                        {% endif %}
+                    </li>
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <hr>
+    {% endif %}
+    <div class="section">
+        <div class="section-title">Personal Details</div>
         <div class="section-content">
             <ul>
                 {% if personal_details.date_of_birth %}
                 <li>
-                    Date of Birth : {{ personal_details.date_of_birth }}
+                    Date of Birth : {{ personal_details.date_of_birth|date:"F Y" }}
                 </li>
-                    {% endif %}
-                    {% if personal_details.address %}
+                {% endif %}
+                {% if personal_details.address %}
                 <li>
-                    Address :  {{ personal_details.address }}
+                    Address : {{ personal_details.address }}
                 </li>
-                    {% endif %}
-                    {% if personal_details.language_known %}
+                {% endif %}
+                {% if personal_details.language_known %}
                 <li>
-                    Languages :  {{ personal_details.language_known }}
+                    Languages : {{ personal_details.language_known }}
                 </li>
-                    {% endif %}
-                    {% if personal_details.hobbies %}
+                {% endif %}
+                {% if personal_details.hobbies %}
                 <li>
                     Hobbies : {{ personal_details.hobbies }}
                 </li>
-                    {% endif %}
-                    {% if personal_details.personal_website %}
+                {% endif %}
+                {% if personal_details.personal_website %}
                 <li>
                     Portfolio : {{ personal_details.personal_website }}
                 </li>
-                    {% endif %}
+                {% endif %}
             </ul>
         </div>
     </div>
 </body>
+
 </html>
