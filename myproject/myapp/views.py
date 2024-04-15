@@ -22,30 +22,14 @@ import re
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
 from .serializers import PersonalDetailsSerializer, EducationSerializer, WorkExperienceSerializer, SkillSerializer, ProjectSerializer, CertificateSerializer, AchievementSerializer
 from .models import User
 from django.http import HttpResponse
 from django.template.loader import get_template
-from xhtml2pdf import pisa
-from io import BytesIO
 from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
-import pdfkit
-import os 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
-
-
-
-
-
-
-
+from weasyprint import HTML
+from django.utils.safestring import mark_safe
 
 
 
@@ -1196,16 +1180,6 @@ class AnalyseData(APIView):
         
         most_common_skills = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)
         return most_common_skills[:5]  # Return top 5 most common skills
-
-
-from weasyprint import HTML
-from django.http import HttpResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.template.loader import get_template
-from django.utils.safestring import mark_safe
-from django.conf import settings
 
 
 class ExportResume(APIView):

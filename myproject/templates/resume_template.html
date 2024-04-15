@@ -7,21 +7,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume</title>
-    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
     <style>
         @page {
             size: A4;
-            margin: 37px 25px 30px 25px;
+            margin: 30px 25px 30px 25px;
             box-sizing: border-box;
 
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Computer Modern Serif", serif;
             display: static;
             color: black;
             text-align: justify;
             text-transform: capitalize;
+            font-size: 11pt;
+            font-weight: 500;
         }
 
         a {
@@ -33,34 +34,32 @@
         .section {
             margin-top: 5px;
             margin-bottom: 5px;
-            page-break-inside: avoid;
 
         }
 
         .section-title {
-            text-decoration: underline;
-            margin-bottom: 10px;
+
             padding: 0;
-            font-size: 18px;
+            font-size: 20px;
             text-transform: uppercase;
             font-weight: 600;
             font-style: bold;
-            page-break-before: avoid;
-            letter-spacing: 5px;
+            page-break-after: avoid;
 
         }
 
         .section-content {
             margin-left: 20px;
-            font-size: 14px;
+            font-size: 11pt;
+            page-break-inside: avoid;
 
         }
 
         .fullname {
             text-align: center;
-            font-size: 3em;
-            font-weight: 900;
-            margin:0;
+            font-size: 2.5em;
+            font-weight: 600;
+            margin: 0;
             padding: 0;
         }
 
@@ -73,7 +72,7 @@
             margin-bottom: 10px;
             padding: 0;
             justify-content: space-between;
-            text-decoration: none;
+            text-decoration: underline;
             text-transform: none;
 
         }
@@ -85,19 +84,16 @@
 
         .personal {
             margin-right: 10px;
-            /* Adjust this value to control the spacing between elements */
         }
 
         .personal:last-child {
             margin-right: 0;
-            /* Remove margin from the last element to avoid extra spacing */
         }
 
         .edu_sub {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            /* Distribute items evenly along the main axis */
             margin: 0;
             margin-bottom: 5px;
             padding: 0;
@@ -110,15 +106,14 @@
             text-align: right;
             font-weight: 200;
             font-style: italic;
-            
+
         }
 
         hr {
-            border: 0.8px solid rgb(59, 58, 58);
+            border: 0.3px solid rgb(59, 58, 58);
             margin: 0;
             padding: 0;
-            page-break-after: avoid;
-
+            margin-bottom: 2px;
         }
 
         .skills {
@@ -170,10 +165,13 @@
         }
 
         .sub_title {
-            font-size: 16px;
-            font-weight: 600;
-            font-style: bold;
+            font-size: 18px;
+            font-weight: 570;
 
+        }
+        i{
+            text-decoration: none;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -198,37 +196,44 @@
 
     <div>
         <a href="{{ personal_detail.personal_website }}">
-            <h1 class="fullname">{{ personal_details.full_name }}</h1>
+            <div class="fullname">{{ personal_details.full_name }}</div>
         </a>
         <div class="top_section">
             {% if personal_details.email_id %}
-            <div class="personal"> <a href="mailto:{{personal_details.user_email}}"> {{ personal_details.email_id }}</a>
+            <div class="personal">
+                <a href="mailto:{{personal_details.user_email}}">{{ personal_details.email_id }}</a>
             </div>
             {% endif %}
             {% if personal_details.mobile_number %}
-            <div class="personal"> {{ personal_details.mobile_number }} </div>
+            <div class="personal">
+                {{ personal_details.mobile_number }}
+            </div>
             {% endif %}
             {% if personal_details.linkedin %}
-            <div class="personal"><a href="{{personal_details.linkedin}}"> {{ personal_details.linkedin }}</a></div>
+            <div class="personal">
+                <a href="{{personal_details.linkedin}}">{{ personal_details.linkedin }}</a>
+            </div>
             {% endif %}
             {% if personal_details.github %}
-            <div class="personal"><a href="{{personal_details.github}}">{{ personal_details.github }}</a></div>
+            <div class="personal">
+                <a href="{{personal_details.github}}">{{ personal_details.github }}</a>
+            </div>
             {% endif %}
         </div>
     </div>
-    <hr>
     {% if personal_details.abstract %}
     <div class="section">
         <div class="section-title">Abstract</div>
+        <hr>
         <p class="section-content">
             {{ personal_details.abstract }}
         </p>
     </div>
-    <hr>
     {% endif %}
 
     <div class="section">
         <div class="section-title">Education</div>
+        <hr>
         <div class="section-content">
             {% for education in educations %}
             <div class="sub_section">
@@ -271,11 +276,11 @@
             {% endfor %}
         </div>
     </div>
-    <hr>
 
     {% if experiences %}
     <div class="section">
         <div class="section-title">Experience</div>
+        <hr>
         <div class="section-content">
             {% for experience in experiences %}
             <div class="sub_section">
@@ -314,12 +319,12 @@
             {% endfor %}
         </div>
     </div>
-    <hr>
     {% endif %}
 
 
     <div class="section">
         <div class="section-title">Skills</div>
+        <hr>
         <div class="section-content">
             {% for skill in skills %}
             <div class="skills">
@@ -328,18 +333,19 @@
             {% endfor %}
         </div>
     </div>
-    <hr>
 
     {%if projects %}
     <div class="section">
         <div class="section-title">Projects</div>
+        <hr>
         <div class="section-content">
             {% for project in projects %}
             <div class="sub_section">
                 <div class="edu_sub">
                     {% if project.project_name %}
-                    <div class="sub_title"> <a href="{{ project.project_link }}">
-                            {{ project.project_name }} </a>
+                    <div class="sub_title">
+                        <i class="fa fa-external-link-alt"></i> <!-- External link icon -->
+                        <a href="{{ project.project_link }}">{{ project.project_name }}</a>
                     </div>
                     {% endif %}
                     {% if project.date %}
@@ -357,11 +363,11 @@
             {% endfor %}
         </div>
     </div>
-    <hr>
     {% endif %}
     {% if certificates%}
     <div class="section">
         <div class="section-title">Certificates</div>
+        <hr>
         <div class="section-content">
             <ul>
                 {% for certificate in certificates %}
@@ -377,12 +383,12 @@
             </ul>
         </div>
     </div>
-    <hr>
     {% endif %}
 
     {%if achievements %}
     <div class="section">
         <div class="section-title">Achievement</div>
+        <hr>
         <div class="section-content">
             <ul>
                 {% for achievement in achievements %}
@@ -400,10 +406,10 @@
             </ul>
         </div>
     </div>
-    <hr>
     {% endif %}
     <div class="section">
         <div class="section-title">Personal Details</div>
+        <hr>
         <div class="section-content">
             <ul>
                 {% if personal_details.date_of_birth %}

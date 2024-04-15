@@ -32,7 +32,8 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_active=models.BooleanField(default=True)
     # role=models.CharField(null=True,blank=True,choices=(('user',"User")),max_length=255)
     date_joined = models.DateTimeField(auto_now_add=True)
-
+    secret_code=models.CharField(max_length=255,blank=True,null=True,unique=True)
+    
     objects=CustomUserManager()
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]  
