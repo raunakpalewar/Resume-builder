@@ -28,7 +28,9 @@ urlpatterns = [
     path('login/', views.Login.as_view()),
     path('logout/', views.UserLogout.as_view()),
     path('forgotPassword/', views.ForgotPassword.as_view()),
-    path("resetPassword/<str:uidb64>/<str:token>/", views.ResetPassword.as_view()),
+   #  path("resetPassword/<str:uidb64>/<str:token>/", views.ResetPassword.as_view()),
+    path("resetPassword/<str:email>/<str:secret_code>/", views.ResetPassword.as_view()),
+
     path('addPersonalDetails/', views.AddPersonalDetails.as_view()),
     path('getPersonalDetails/', views.GetPersonalDetails.as_view()),
     path('updatePersonalDetails/', views.UpdatePersonalDetails.as_view()),

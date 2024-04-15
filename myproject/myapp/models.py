@@ -52,7 +52,7 @@ class PersonalDetails(models.Model):
     linkedin = models.TextField(blank=True, null=True)
     github = models.TextField(blank=True, null=True)
     personal_website = models.TextField(blank=True, null=True)
-    abstract=models.TextField()
+    abstract=models.TextField(blank=True,null=True)
     language_known=models.TextField(null=True,blank=True)
     
     def __str__(self):

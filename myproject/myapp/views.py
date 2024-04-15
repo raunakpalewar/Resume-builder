@@ -30,6 +30,8 @@ from django.template.loader import get_template
 from .models import PersonalDetails, Education, WorkExperience, Skill, Project, Certificate, Achievement
 from weasyprint import HTML
 from django.utils.safestring import mark_safe
+import random
+import random,string
 
 
 
@@ -60,6 +62,12 @@ def email_validate(email):
         raise ValueError("Invalid email format")
 
 
+def secret_code_generator():
+    return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6))
+
+
+
+#Auth Apis
 
 class UserRegistration(APIView):
     permission_classes = [AllowAny]
@@ -76,6 +84,7 @@ class UserRegistration(APIView):
             required=['email', 'password']
         ),
     )
+
     def post(self, request):
         try:
             email = request.data.get('email')
@@ -88,8 +97,9 @@ class UserRegistration(APIView):
             password_validate(password)
 
             user_password = make_password(password)
-            date=timezone.now()
-            user = User.objects.create(email=email, password=user_password,date_joined=date)
+            date = timezone.now()
+            secret_code = secret_code_generator()  # Generate unique secret code
+            user = User.objects.create(email=email, password=user_password, date_joined=date, secret_code=secret_code)
             user.save()
 
             return Response({'message': "User Registered Successfully"}, status=status.HTTP_201_CREATED)
@@ -172,6 +182,7 @@ class ForgotPassword(APIView):
             404: 'User not found',
         }
     )
+
     def post(self, request):
         email = request.data.get('email')
         
@@ -183,15 +194,16 @@ class ForgotPassword(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
+        # Generate unique token for password reset
+        # uid = urlsafe_base64_encode(force_bytes(user.pk))
+        # token = default_token_generator.make_token(user)
         
-        # Construct reset password link
-        reset_link = f"http://127.0.0.1:8000/reset-password/{uid}/{token}/"
+        # Construct reset password link with secret code
+        # reset_link = f"http://127.0.0.1:8000/reset-password/{uid}/{token}/{user.secret_code}/"
         
         from_email = settings.EMAIL_HOST_USER
         email_subject = 'Password Reset'
-        email_body = f'reset_link: {reset_link}'
+        email_body = f'Reset Code: {user.secret_code}'
         send_mail(email_subject, email_body, from_email ,[user.email] )
         
         return Response({'message': 'Password reset email sent'}, status=status.HTTP_200_OK)
@@ -204,8 +216,8 @@ class ResetPassword(APIView):
         operation_summary="Reset Password",
         tags=['Authentication'],
         manual_parameters=[
-            openapi.Parameter('uidb64', openapi.IN_PATH, description="User ID encoded in base64", type=openapi.TYPE_STRING),
-            openapi.Parameter('token', openapi.IN_PATH, description="Token for password reset", type=openapi.TYPE_STRING),
+            openapi.Parameter('email', openapi.IN_PATH, description="email", type=openapi.TYPE_STRING),
+            openapi.Parameter('secret_code', openapi.IN_PATH, description="secret key", type=openapi.TYPE_STRING),
         ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -219,29 +231,34 @@ class ResetPassword(APIView):
             400: 'Bad request: Invalid reset link or new password is required',
         }
     )
-    def post(self, request, uidb64, token):
+    def post(self, request,email,secret_code):
+        # try:
+        #     uid = force_str(urlsafe_base64_decode(uidb64))
+        #     user = User.objects.get(pk=uid)
+        # except Exception as e:
+        #     user = None
+        #     return Response({"response": f'{str(e)}', "status": status.HTTP_400_BAD_REQUEST})
+
         try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except Exception as e:
-            user = None
-            return Response({"response":f'{str(e)}',"status":status.HTTP_400_BAD_REQUEST})
-        try:
-            if user is not None and default_token_generator.check_token(user, token):
+            user=User.objects.get(email=email)
+            if user.secret_code == secret_code:
                 new_password = request.data.get('new_password')
                 
                 if not new_password:
                     return Response({'message': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
                 
                 user.set_password(new_password)
+                user.secret_code = secret_code_generator()  # Generate new secret code
                 user.save()
                 
                 return Response({'message': 'Password reset successfully'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Invalid reset link'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"response":f'{str(e)}',"status":status.HTTP_400_BAD_REQUEST})
+            return Response({"response": f'{str(e)}', "status": status.HTTP_400_BAD_REQUEST})
 
+
+# Personal Details Api
 
 class AddPersonalDetails(APIView):
     authentication_classes = [JWTAuthentication]
@@ -305,6 +322,9 @@ class UpdatePersonalDetails(APIView):
     @swagger_auto_schema(
         operation_description="Update personal details for the authenticated user.",
         operation_summary="Update Personal Details",
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
         tags=['Personal Details'],
         request_body=PersonalDetailsSerializer,
         responses={
@@ -316,10 +336,11 @@ class UpdatePersonalDetails(APIView):
     def put(self, request):
         try:
             user = request.user
-            personal_details = PersonalDetails.objects.get(user=user)
+            personal_details = PersonalDetails.objects.get(user=user.id)
         except PersonalDetails.DoesNotExist:
             return Response({'message': 'Personal details not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = PersonalDetailsSerializer(personal_details, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -337,6 +358,9 @@ class DeletePersonalDetails(APIView):
         operation_description="Delete personal details for the authenticated user.",
         operation_summary="Delete Personal Details",
         tags=['Personal Details'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
         responses={
             204: 'Personal details deleted successfully',
             404: 'Personal details not found'
@@ -351,6 +375,8 @@ class DeletePersonalDetails(APIView):
         personal_details.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+# Education apis
 
 class AddEducation(APIView):
     authentication_classes = [JWTAuthentication]
@@ -415,6 +441,10 @@ class UpdateEducation(APIView):
         operation_description="Update education details for the authenticated user.",
         operation_summary="Update Education",
         tags=['Education'],
+         manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('degree', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
         request_body=EducationSerializer,
         responses={
             200: 'Education details updated successfully',
@@ -422,13 +452,14 @@ class UpdateEducation(APIView):
             404: 'Education details not found'
         }
     )
-    def put(self, request):
+    def put(self, request,degree):
         try:
             user = request.user
-            education = Education.objects.get(user=user)
+            education = Education.objects.get(user=user.id,degree=degree)
         except Education.DoesNotExist:
             return Response({'message': 'Education details not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = EducationSerializer(education, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -446,20 +477,26 @@ class DeleteEducation(APIView):
         operation_description="Delete education details for the authenticated user.",
         operation_summary="Delete Education",
         tags=['Education'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('degree', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         responses={
             204: 'Education details deleted successfully',
             404: 'Education details not found'
         }
     )
-    def delete(self, request):
+    def delete(self, request,degree):
         try:
             user = request.user
-            education = Education.objects.get(user=user)
+            education = Education.objects.get(user=user.id,degree=degree)
         except Education.DoesNotExist:
             return Response({'message': 'Education details not found'}, status=status.HTTP_404_NOT_FOUND)
         education.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# Experience apis
 
 class AddExperience(APIView):
     authentication_classes = [JWTAuthentication]
@@ -524,6 +561,10 @@ class UpdateExperience(APIView):
         operation_description="Update work experience details for the authenticated user.",
         operation_summary="Update Experience",
         tags=['Experience'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('company', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         request_body=WorkExperienceSerializer,
         responses={
             200: 'Work experience details updated successfully',
@@ -531,13 +572,14 @@ class UpdateExperience(APIView):
             404: 'Work experience details not found'
         }
     )
-    def put(self, request):
+    def put(self, request,company):
         try:
             user = request.user
-            experience = WorkExperience.objects.get(user=user)
+            experience = WorkExperience.objects.get(user=user.id,compnay=company)
         except WorkExperience.DoesNotExist:
             return Response({'message': 'Work experience details not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = WorkExperienceSerializer(experience, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -555,20 +597,26 @@ class DeleteExperience(APIView):
         operation_description="Delete work experience details for the authenticated user.",
         operation_summary="Delete Experience",
         tags=['Experience'],
+         manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('company', openapi.IN_HEADER, type=openapi.TYPE_STRING)
+        ],
         responses={
             204: 'Work experience details deleted successfully',
             404: 'Work experience details not found'
         }
     )
-    def delete(self, request):
+    def delete(self, request,company):
         try:
             user = request.user
-            experience = WorkExperience.objects.get(user=user)
+            experience = WorkExperience.objects.get(user=user.id,company=company)
         except WorkExperience.DoesNotExist:
             return Response({'message': 'Work experience details not found'}, status=status.HTTP_404_NOT_FOUND)
         experience.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# Skills Api
 
 class AddSkill(APIView):
     authentication_classes = [JWTAuthentication]
@@ -633,6 +681,10 @@ class UpdateSkill(APIView):
         operation_description="Update a skill for the authenticated user.",
         operation_summary="Update Skill",
         tags=['Skill'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('skill_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         request_body=SkillSerializer,
         responses={
             200: 'Skill updated successfully',
@@ -640,13 +692,14 @@ class UpdateSkill(APIView):
             404: 'Skill not found'
         }
     )
-    def put(self, request):
+    def put(self, request,skill_name):
         try:
             user = request.user
-            skill = Skill.objects.get(user=user)
+            skill = Skill.objects.get(user=user.id,skill_name=skill_name)
         except Skill.DoesNotExist:
             return Response({'message': 'Skill not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = SkillSerializer(skill, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -664,15 +717,19 @@ class DeleteSkill(APIView):
         operation_description="Delete a skill for the authenticated user.",
         operation_summary="Delete Skill",
         tags=['Skill'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('skill_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         responses={
             204: 'Skill deleted successfully',
             404: 'Skill not found'
         }
     )
-    def delete(self, request):
+    def delete(self, request,skill_name):
         try:
             user = request.user
-            skill = Skill.objects.get(user=user)
+            skill = Skill.objects.get(user=user.id,skill_name=skill_name)
         except Skill.DoesNotExist:
             return Response({'message': 'Skill not found'}, status=status.HTTP_404_NOT_FOUND)
         skill.delete()
@@ -680,6 +737,7 @@ class DeleteSkill(APIView):
 
 
 
+# Project apis
 
 class AddProject(APIView):
     authentication_classes = [JWTAuthentication]
@@ -741,6 +799,10 @@ class UpdateProject(APIView):
         operation_description="Update an existing project.",
         operation_summary="Update Project",
         tags=['Projects'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('project_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         request_body=ProjectSerializer,
         responses={
             200: 'Project updated successfully',
@@ -748,12 +810,14 @@ class UpdateProject(APIView):
             404: 'Project not found'
         }
     )
-    def put(self, request, pk):
+    def put(self, request, project_name):
         try:
-            project = Project.objects.get(pk=pk)
+            user=request.user
+            project = Project.objects.get(user=user.id,project_name=project_name)
         except Project.DoesNotExist:
             return Response({'message': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = ProjectSerializer(project, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -770,14 +834,20 @@ class DeleteProject(APIView):
         operation_description="Delete a project.",
         operation_summary="Delete Project",
         tags=['Projects'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('project_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         responses={
             204: 'Project deleted successfully',
             404: 'Project not found'
         }
     )
-    def delete(self, request, pk):
+    def delete(self, request, project_name):
         try:
-            project = Project.objects.get(pk=pk)
+            user=request.user
+            request.data['user']=user.id
+            project = Project.objects.get(user=user.id,project_name=project_name)
         except Project.DoesNotExist:
             return Response({'message': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
         project.delete()
@@ -785,6 +855,7 @@ class DeleteProject(APIView):
 
 
 
+# certificate api
 
 class AddCertificate(APIView):
     authentication_classes = [JWTAuthentication]
@@ -849,6 +920,10 @@ class UpdateCertificate(APIView):
         operation_description="Update a certificate for the authenticated user.",
         operation_summary="Update Certificate",
         tags=['Certificate'],
+         manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('certification_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         request_body=CertificateSerializer,
         responses={
             200: 'Certificate updated successfully',
@@ -856,13 +931,14 @@ class UpdateCertificate(APIView):
             404: 'Certificate not found'
         }
     )
-    def put(self, request):
+    def put(self, request,certification_name):
         try:
             user = request.user
-            certificate = Certificate.objects.get(user=user)
+            certificate = Certificate.objects.get(user=user.id,certification_name=certification_name)
         except Certificate.DoesNotExist:
             return Response({'message': 'Certificate not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = CertificateSerializer(certificate, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -880,20 +956,26 @@ class DeleteCertificate(APIView):
         operation_description="Delete a certificate for the authenticated user.",
         operation_summary="Delete Certificate",
         tags=['Certificate'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('certification_name', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         responses={
             204: 'Certificate deleted successfully',
             404: 'Certificate not found'
         }
     )
-    def delete(self, request):
+    def delete(self, request,certification_name):
         try:
             user = request.user
-            certificate = Certificate.objects.get(user=user)
+            certificate = Certificate.objects.get(user=user.id,certification_name=certification_name)
         except Certificate.DoesNotExist:
             return Response({'message': 'Certificate not found'}, status=status.HTTP_404_NOT_FOUND)
         certificate.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# achievement apis
 
 class AddAchievement(APIView):
     authentication_classes = [JWTAuthentication]
@@ -958,6 +1040,10 @@ class UpdateAchievements(APIView):
         operation_description="Update an achievement for the authenticated user.",
         operation_summary="Update Achievement",
         tags=['Achievement'],
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('achievment_description', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         request_body=AchievementSerializer,
         responses={
             200: 'Achievement updated successfully',
@@ -965,13 +1051,14 @@ class UpdateAchievements(APIView):
             404: 'Achievement not found'
         }
     )
-    def put(self, request):
+    def put(self, request,achievment_description):
         try:
             user = request.user
-            achievement = Achievement.objects.get(user=user)
+            achievement = Achievement.objects.get(user=user.id,achievment_description=achievment_description)
         except Achievement.DoesNotExist:
             return Response({'message': 'Achievement not found'}, status=status.HTTP_404_NOT_FOUND)
         try:
+            request.data['user']=user.id
             serializer = AchievementSerializer(achievement, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -989,15 +1076,19 @@ class DeleteAchievements(APIView):
         operation_description="Delete an achievement for the authenticated user.",
         operation_summary="Delete Achievement",
         tags=['Achievement'],
+         manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+            openapi.Parameter('achievment_description', openapi.IN_HEADER, type=openapi.TYPE_STRING),
+        ],
         responses={
             204: 'Achievement deleted successfully',
             404: 'Achievement not found'
         }
     )
-    def delete(self, request):
+    def delete(self, request,achievment_description):
         try:
             user = request.user
-            achievement = Achievement.objects.get(user=user)
+            achievement = Achievement.objects.get(user=user.id,achievment_description=achievment_description)
         except Achievement.DoesNotExist:
             return Response({'message': 'Achievement not found'}, status=status.HTTP_404_NOT_FOUND)
         achievement.delete()
