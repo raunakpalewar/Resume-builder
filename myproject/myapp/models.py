@@ -41,6 +41,8 @@ class User(AbstractBaseUser,PermissionsMixin):
     def __str__(self):
         return f"{self.email}"
 
+
+
 class PersonalDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name=models.CharField(max_length=255, null=True,blank=True)
