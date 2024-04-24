@@ -30,7 +30,6 @@ class User(AbstractBaseUser,PermissionsMixin):
     password=models.CharField(max_length=255,null=True,blank=True)
     is_staff=models.BooleanField(default=False)
     is_active=models.BooleanField(default=True)
-    # role=models.CharField(null=True,blank=True,choices=(('user',"User")),max_length=255)
     date_joined = models.DateTimeField(auto_now_add=True)
     secret_code=models.CharField(max_length=255,blank=True,null=True,unique=True)
     
