@@ -83,7 +83,6 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-import os
 import ssl
 import os
 from dotenv import load_dotenv

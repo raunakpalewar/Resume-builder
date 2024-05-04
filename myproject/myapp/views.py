@@ -1116,31 +1116,24 @@ class GetAllDetails(APIView):
         try:
             user = request.user
 
-            # Retrieve personal details
             personal_details = PersonalDetails.objects.filter(user=user)
             personal_details_data = PersonalDetailsSerializer(personal_details, many=True).data
 
-            # Retrieve non-null educations
             educations = Education.objects.filter(user=user).exclude(degree__isnull=True)
             educations_data = EducationSerializer(educations, many=True).data
 
-            # Retrieve non-null experiences
             experiences = WorkExperience.objects.filter(user=user).exclude(company__isnull=True)
             experiences_data = WorkExperienceSerializer(experiences, many=True).data
 
-            # Retrieve non-null skills
             skills = Skill.objects.filter(user=user).exclude(skill_name__isnull=True)
             skills_data = SkillSerializer(skills, many=True).data
 
-            # Retrieve non-null projects
             projects = Project.objects.filter(user=user).exclude(project_name__isnull=True)
             projects_data = ProjectSerializer(projects, many=True).data
 
-            # Retrieve non-null certificates
             certificates = Certificate.objects.filter(user=user).exclude(certification_name__isnull=True)
             certificates_data = CertificateSerializer(certificates, many=True).data
 
-            # Retrieve non-null achievements
             achievements = Achievement.objects.filter(user=user).exclude(achievment_description__isnull=True)
             achievements_data = AchievementSerializer(achievements, many=True).data
 
