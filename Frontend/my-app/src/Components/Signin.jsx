@@ -1,10 +1,10 @@
 import react from 'React';
 
-const SignUp =()=>{
+const SignIp =()=>{
     return(
         <section>
 
         </section>
     );
 };
-export default SignUp;
+export default SignIp;
