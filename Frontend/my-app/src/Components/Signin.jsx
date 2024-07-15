@@ -1,4 +1,4 @@
-import react from 'React';
+import React from 'React';
 import styles from './SignIn.module.css';
 
 const SignIp =()=>{
