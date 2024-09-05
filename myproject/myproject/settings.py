@@ -77,31 +77,31 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 import ssl
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'db1',
-        'ENFORCE_SCHEMA': False,
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'db1',
+#         'ENFORCE_SCHEMA': False,
 
-        'CLIENT': {
-                # 'host': 'mongodb+srv://raunakpalewar9979:eCRUMljON3qdBsgo@cluster0.m13o95i.mongodb.net/',
-                'host': os.getenv('database_url')
+#         'CLIENT': {
+#                 # 'host': 'mongodb+srv://raunakpalewar9979:eCRUMljON3qdBsgo@cluster0.m13o95i.mongodb.net/',
+#                 'host': os.getenv('database_url')
 
-            }  
-    }
-}
+#             }  
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
