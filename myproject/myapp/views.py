@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import requests
 from django.http import HttpResponseRedirect
+
+
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView

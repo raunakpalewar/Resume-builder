@@ -83,8 +83,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
+    
 import ssl
 import os
 from dotenv import load_dotenv
