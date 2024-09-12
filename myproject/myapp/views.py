@@ -9,6 +9,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import *
+
+
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import login, logout
