@@ -12,7 +12,6 @@ from .serializers import *
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import login, logout
-
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
