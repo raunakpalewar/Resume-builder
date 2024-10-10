@@ -16,7 +16,6 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
 from django.core.mail import send_mail
-
 from datetime import timedelta
 from django.db.models import Q
 import re
