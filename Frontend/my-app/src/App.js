@@ -1,19 +1,20 @@
-import logo from './real.svg';
-import './App.css';
 import React from 'react';
-import Item from './myitem';
-import SignIp from './Components/Signin';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import './App.css';
+import SignIn from './Components/Signin';
 import SignUp from './Components/SignUp';
 
-
 function App() {
-
   return (
-    <div>
-      
-    </div>
-
-
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/" element={<SignUp />} />
+          {/* Add more routes here if needed */}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

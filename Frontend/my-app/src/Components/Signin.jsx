@@ -1,11 +1,11 @@
-import React from 'React';
+import React from 'react';
 import styles from './SignIn.module.css';
 
-const SignIp =()=>{
+const SignIn = ()=>{
     return(
         <section>
 
         </section>
     );
 };
-export default SignIp;
+export default SignIn;

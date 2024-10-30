@@ -17,7 +17,6 @@ from drf_yasg import openapi
 from django.conf import settings
 from django.core.mail import send_mail
 from datetime import timedelta
-
 from django.db.models import Q
 import re
 from django.contrib.auth.tokens import default_token_generator
